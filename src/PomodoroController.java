@@ -3,6 +3,9 @@ import javax.swing.*;
 public class PomodoroController implements PomodoroModelListener {
     private final PomodoroModel model;
     private final PomodoroView view;
+    private final PomodoroSessionDao sessionDao = new PomodoroSessionDao();
+    private final PomodoroConfigDao configDao = new PomodoroConfigDao();
+    private long phaseStartMillis = System.currentTimeMillis();
 
     private SwingWorker<Void, Integer> worker;
     private volatile boolean paused = false;
@@ -30,6 +33,7 @@ public class PomodoroController implements PomodoroModelListener {
         // ambil config terbaru dari view dan apply ke model hanya jika belum ada worker aktif
         if (worker == null || worker.isDone()) {
             model.setConfig(view.readConfig());
+            configDao.save(model.getConfig());
         }
 
         if (worker != null && !worker.isDone()) {
@@ -61,6 +65,9 @@ public class PomodoroController implements PomodoroModelListener {
                 if (model.isPhaseFinished()) {
                     java.awt.Toolkit.getDefaultToolkit().beep();
                     model.onWorkFinishedIncrementCycle();
+                    long end = System.currentTimeMillis();
+                    sessionDao.insertSession(model.getPhase(), phaseStartMillis, end,
+                            model.getTotalSeconds(), model.getCyclesCompleted());
                     model.nextPhaseAuto();
                     view.renderStatus("Auto-switched.");
                     start(); // auto-lanjut fase berikutnya
@@ -82,6 +89,7 @@ public class PomodoroController implements PomodoroModelListener {
         paused = false;
         model.setConfig(view.readConfig());
         model.resetToWork();
+        configDao.save(model.getConfig()); 
     }
 
     public void skip() {
@@ -98,9 +106,10 @@ public class PomodoroController implements PomodoroModelListener {
         view.renderTick(secondsLeft, totalSeconds, progressPercent);
     }
 
-    @Override
+   @Override
     public void onPhaseChanged(Phase phase, int secondsLeft, int totalSeconds) {
         view.renderPhase(phase, secondsLeft, totalSeconds);
+        phaseStartMillis = System.currentTimeMillis();
     }
 
     @Override
