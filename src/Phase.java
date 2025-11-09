@@ -3,7 +3,6 @@ public enum Phase {
     SHORT_BREAK,
     LONG_BREAK;
 
-
     public String title() {
         switch (this) {
         case WORK: return "WORK";

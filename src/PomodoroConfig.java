@@ -4,7 +4,6 @@ public class PomodoroConfig {
     private int longBreakMinutes;
     private int longBreakEveryNWorks;
 
-
     public PomodoroConfig(int workMinutes, int shortBreakMinutes, int longBreakMinutes, int longBreakEveryNWorks) {
         this.workMinutes = workMinutes;
         this.shortBreakMinutes = shortBreakMinutes;

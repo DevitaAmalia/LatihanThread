@@ -26,7 +26,6 @@ public class PomodoroModel {
 
     public void setConfig(PomodoroConfig newConfig) {
         this.config = newConfig;
-        // tidak mengubah fase secara otomatis; controller akan reset jika diperlukan
         fireStatus("Config updated.");
     }
 
@@ -73,7 +72,6 @@ public class PomodoroModel {
         fireStatus("Reset.");
     }
 
-    // ===== events =====
     private void fireTick() {
         int progress = (int) Math.round((1.0 * (totalSeconds - secondsLeft) / Math.max(1, totalSeconds)) * 100.0);
         for (PomodoroModelListener l : listeners) l.onTick(secondsLeft, totalSeconds, progress);
